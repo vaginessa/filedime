@@ -121,7 +121,7 @@ pub fn fileslist(windowname: &str, ah: &AppHandle, fl: &String) -> Result<(), St
     Ok(())
 }
 pub fn driveslist(windowname: &str, ah: &AppHandle, fl: &String) -> Result<(), String> {
-    println!("sending drives list to {} {}", fl, windowname);
+    // println!("sending drives list to {} {}", fl, windowname);
     ah.emit_to(windowname, "list-drives", fl)
         .map_err(|e| e.to_string())?;
     Ok(())

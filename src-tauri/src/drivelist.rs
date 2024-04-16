@@ -266,14 +266,11 @@ fn flattened(parsed: LsBlkOutput) -> Vec<LsBlkDevice> {
             child.details.vendor = device.details.vendor.clone();
             child.details.model = device.details.model.clone();
             stack.push(child);
-            print!(
-                "{}",
-                format!(
-                    "{:?} {:?}",
-                    device.details.vendor.clone(),
-                    device.details.model.clone()
-                )
-            )
+            // print!("{}",format!(
+            //     "{:?} {:?}",
+            //     device.details.vendor.clone(),
+            //     device.details.model.clone())
+            // )
         }
     }
     // println!("output------{:?}",output);

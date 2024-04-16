@@ -28,7 +28,7 @@ function getchattime(){
 function getchattimestamp(){
   return new Date().getTime()
 }
-export default function GPTchatinterface({message,fgptendpoint}:gptargs){
+export default function GPTchatinterface({message,fgptendpoint="localhost"}:gptargs){
   // const [time, setTime] = useState(new Date());
   // useEffect(() => {
   //   const timer = setInterval(() => {

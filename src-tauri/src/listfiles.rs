@@ -183,9 +183,9 @@ pub async fn list_files(
         .hidden(ignorehiddenfiles) // Include hidden files and directories
         .follow_links(false)
         .parents(true)
-        .git_exclude(true)
-        .ignore(true) // Disable the default ignore rules
-        .git_ignore(true)
+        .git_exclude(ignorehiddenfiles)
+        .ignore(ignorehiddenfiles) // Disable the default ignore rules
+        .git_ignore(ignorehiddenfiles)
         .clone();
     let walker2 = walker
         .clone() // Respect the .gitignore file
