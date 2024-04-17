@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import {Textarea} from "./ui/textarea"
 import { invoke } from "@tauri-apps/api/tauri";
 import {fetchEventSource} from '@microsoft/fetch-event-source';
+import { Checkbox } from "./ui/checkbox";
 // import MyComponent from "./route";
 interface gptargs{
     message?:FileItem,
@@ -28,7 +29,7 @@ function getchattime(){
 function getchattimestamp(){
   return new Date().getTime()
 }
-export default function GPTchatinterface({message,fgptendpoint="localhost"}:gptargs){
+export default function GPTchatinterface({message,fgptendpoint}:gptargs){
   // const [time, setTime] = useState(new Date());
   // useEffect(() => {
   //   const timer = setInterval(() => {
@@ -87,7 +88,12 @@ export default function GPTchatinterface({message,fgptendpoint="localhost"}:gpta
       // }
     };
     //scroll to bottom in chatview
-    useEffect(()=> divRef.current.scrollIntoView({behavior: "smooth", block:"end"}), [onemessage])
+    useEffect(()=> {
+      if(autoscroll){
+
+        divRef.current.scrollIntoView({behavior: "smooth", block:"end"})
+      }
+    }, [onemessage])
     const fetchData = async () => {
       // Example URL for the Ollama API generate endpoint
 
@@ -99,7 +105,7 @@ if(question.toLocaleLowerCase().startsWith("o2c") ||!filedimegptisrunning){ //ou
    "prompt": question.replace("o2c", ""),
    "stream": true // Ensure streaming is enabled
   };
-  
+  // let tempstore=useRef([])
   // Fetch the stream from the Ollama API
   fetch(`http://${fgptendpoint}:11434/api/generate`, {
    method: 'POST',
@@ -109,6 +115,7 @@ if(question.toLocaleLowerCase().startsWith("o2c") ||!filedimegptisrunning){ //ou
    body: JSON.stringify(requestBody)
   })
   .then(response => {
+    
    const reader = response.body.getReader();
    const decoder = new TextDecoder('utf-8');
   
@@ -122,12 +129,8 @@ if(question.toLocaleLowerCase().startsWith("o2c") ||!filedimegptisrunning){ //ou
       const chunk = decoder.decode(value);
       // console.log(JSON.parse(chunk).response);
       if(JSON.parse(chunk).response){
-          setmessage((old)=>{
-          
-          let resp=JSON.parse(chunk).response;
-                  // console.log("-----------"+old)
-                  // console.log();
-                  // let jp=JSON.parse(resp);
+        let resp=JSON.parse(chunk).response;
+                  setmessage((old)=>{
                   let dm=old+resp;
                   return dm});
         }
@@ -216,6 +219,7 @@ else{
           timestamp:getchattimestamp()
         }
       ])
+      
       }
         setchathistory((old)=>[...old,
           {
@@ -312,6 +316,7 @@ else{
                 }])
       }
     },[cmsg])
+    const [autoscroll,setas]=useState(false)
     return (<>
     {/* <MyComponent/> */}
     {/* {time.toLocaleString()} */}
@@ -323,7 +328,7 @@ else{
     <FileUploadComponent fge={filegptendpoint} setcmsg={setcmsg}/>
     </>)}
     
-    <div className="overflow-auto grid gap-4 p-4 h-[80%] mb-5" >
+    <div className="overflow-auto grid gap-4 p-4 h-[70%] mb-5" >
         <div className="flex items-start gap-4 flex-col flex-grow" ref={divRef}>
         {chathistory.map((e)=>{
           // console.log(e)
@@ -334,10 +339,29 @@ else{
               {e.from==="you"?(<UserIcon className="h-4 w-4"/>):(<BotIcon className="h-4 w-4"/>)}
               </div>
           <div className="flex flex-col gap-1">
-            <time className="text-xs text-gray-500 dark:text-gray-400">{e.time}</time>
-            <p>
-              {e.message}
-            </p>
+            <time className="text-xs text-gray-500 dark:text-gray-400">{e.time} <Button className="ml-4 text-white" variant={"outline"} onClick={()=>{
+              const requestBody = {
+                "text": `${e.message}`.toString(),
+                "comments":"something here"
+               };
+              fetch(`http://127.0.0.1:8694/tts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+              })
+              .then(response => {
+                console.log(response)
+                })
+              .catch(error => {
+                console.error('Error reading stream:', error)});  
+            }}>Listen to this response</Button></time>
+             <p
+              dangerouslySetInnerHTML={{
+                __html: e.message.replace(/\n/g, '<br/>')
+              }}
+            ></p>
           </div>
           </div>
             </>
@@ -366,8 +390,15 @@ else{
             setq(event.target.value)
           }} />
           <Loader2 className={`${chatbuttonstate?"h-4 w-4 animate-spin":"hidden"}`}/>
+
+          
           <Button disabled={chatbuttonstate} className={``} onClick={handleSubmit}>Send</Button>
         </div>
+        <div className="flex flex-row gap-2 p-2 m-2">
+
+          <Checkbox onClick={()=>setas((cv)=>!cv)}></Checkbox>
+          <p className="">Autoscroll</p>
+          </div>
       </div>
     </>)
 }
