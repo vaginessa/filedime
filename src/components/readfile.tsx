@@ -120,7 +120,7 @@ export default function ReadFileComp({message}:rfcprops){
                     .catch(console.error)
            }
         }, [message.path]);
-       
+       const [selectedtext,setst]=useState("")
     return (
         <>
         
@@ -172,8 +172,30 @@ export default function ReadFileComp({message}:rfcprops){
               </HoverCardContent>
             </HoverCard>
         </div>
+        <Button className="ml-4 text-white" variant={"outline"} onClick={()=>{
+              const requestBody = {
+                "text": `${selectedtext}`.toString(),
+                "comments":"something here"
+               };
+              fetch(`http://127.0.0.1:8694/tts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+              })
+              .then(response => {
+                console.log(response)
+                })
+              .catch(error => {
+                console.error('Error reading stream:', error)});  
+            }}>Listen to selection</Button>
         </div>
-            <div className={`h-[90%] overflow-${scrollorauto}`}>
+            <div onMouseUp={()=>{
+              const selectedT = window.getSelection().toString();
+              setst(selectedT)
+              console.log('Selected text:', selectedT);
+            }} className={`h-[90%] overflow-${scrollorauto}`}>
 
         {IMAGE_TYPES.some(type => message.name.includes(type))?(
           <TransformWrapper
@@ -206,3 +228,8 @@ export default function ReadFileComp({message}:rfcprops){
         </>
     )
 }
+
+// myDiv.addEventListener('mouseup', () => {
+//   const selectedText = window.getSelection().toString();
+//   console.log('Selected text:', selectedText);
+// });

@@ -29,7 +29,8 @@ function getchattime(){
 function getchattimestamp(){
   return new Date().getTime()
 }
-export default function GPTchatinterface({message,fgptendpoint}:gptargs){
+export default function GPTchatinterface({message,fgptendpoint="localhost"}:gptargs){
+  console.log("endpoint-->"+fgptendpoint)
   // const [time, setTime] = useState(new Date());
   // useEffect(() => {
   //   const timer = setInterval(() => {
@@ -59,7 +60,7 @@ export default function GPTchatinterface({message,fgptendpoint}:gptargs){
     const [chathistorytemp, setchathistorytemp] = useState([] as mitem[]);
     const [chatbuttonstate,setcbs]=useState(false)
     const [question,setq]=useState("")
-    const[filegptendpoint,setfge]=useState("http://localhost:8694")
+    const[filegptendpoint,setfge]=useState(`http://${fgptendpoint}:8694`)
     const[localorremote,setlor]=useState(message?true:false)
     
     // const [querystring, setqs] = useState([message.path]);
@@ -258,21 +259,24 @@ else{
         fetchData();       
     };
     useEffect(()=>{
-      // embed();
-      if(!fgptendpoint){
 
-        invoke("filegptendpoint",{
-          endpoint:""
-        }).then((e)=>{
-          console.log(e)
-          setfge(e)
-          setlor(()=>{
-            (e as string).includes("localhost")?embed():null;
-            return (e as string).includes("localhost")
-          })
-        })
-      }
-      else{
+      embed();
+      // if(!fgptendpoint){
+      //   let url=typeof window !== 'undefined' ? window.location.hostname : '/'
+      //   setfge(url)
+      //   // invoke("filegptendpoint",{
+      //   //   endpoint:""
+      //   // }).then((e)=>{
+      //   //   console.log(e)
+      //   //   setfge(e)
+      //   //   setlor(()=>{
+      //   //     (e as string).includes("localhost")?embed():null;
+      //   //     return (e as string).includes("localhost")
+      //   //   })
+      //   // })
+      // }
+      // else
+      {
         setfge(`http://${fgptendpoint}:8694`)
       }
       fgtest(); //check if filedimegpt is running
