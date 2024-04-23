@@ -14,7 +14,8 @@ import { Checkbox } from "./ui/checkbox";
 // import MyComponent from "./route";
 interface gptargs{
     message?:FileItem,
-    fgptendpoint?:string
+    fgptendpoint?:string,
+    setasollama:boolean
     // localorremote:boolean
 }
 interface mitem{
@@ -24,12 +25,16 @@ interface mitem{
   timestamp:number
 }
 function getchattime(){
-  return `${new Date().getHours()}:${new Date().getMinutes() < 10 ? '0' : ''}${new Date().getMinutes()}`
+  return `${new Date().getHours()}:${new Date().getMinutes() < 10 ? '0' : ''}${new Date().getMinutes()}:${new Date().getSeconds() < 10 ? '0' : ''}${new Date().getSeconds()}`
 }
 function getchattimestamp(){
   return new Date().getTime()
 }
-export default function GPTchatinterface({message,fgptendpoint="localhost"}:gptargs){
+export default function GPTchatinterface({message,fgptendpoint="localhost",setasollama=false}:gptargs){
+  // let sao=(value:boolean)=>{setasollama=value};
+  const [isollama,sao]=useState(setasollama)
+  
+  // const [useollama,seto]=useState(setasollama)
   console.log("endpoint-->"+fgptendpoint)
   // const [time, setTime] = useState(new Date());
   // useEffect(() => {
@@ -66,27 +71,31 @@ export default function GPTchatinterface({message,fgptendpoint="localhost"}:gpta
     // const [querystring, setqs] = useState([message.path]);
 
     const embed = async () => {
-      // if(localorremote){
-        try {
-         const response = await axios.post(`${filegptendpoint}/embed`, { files: filePaths });
-         setchathistory((old)=>[...old,{
-          from:"bot",
-          message:`${message?message.path:"The file(s)"} is ready for your questions`,
-          time:getchattime(),
-          timestamp:getchattimestamp()
-        }])
-         setcbs(false)
-         console.log(response.data);
-       } catch (error) {
-        setchathistory((old)=>[...old,{
-          from:"bot",
-          message:`Issue finding Filegpt endpoint, maybe its not be running.`,
-          time:getchattime(),
-          timestamp:getchattimestamp()
-        }])
-         console.error('Error:', error);
-       }
-      // }
+      if(message.path){
+        console.log("embed")
+        // if(localorremote){
+          try {
+           const response = await axios.post(`${filegptendpoint}/embed`, { files: filePaths });
+           sao(false)
+           setchathistory((old)=>[...old,{
+            from:"bot",
+            message:`${message?message.path:"The file(s)"} is ready for your questions`,
+            time:getchattime(),
+            timestamp:getchattimestamp()
+          }])
+           setcbs(false)
+           console.log(response.data);
+         } catch (error) {
+          setchathistory((old)=>[...old,{
+            from:"bot",
+            message:`Issue finding Filegpt endpoint, maybe its not be running.`,
+            time:getchattime(),
+            timestamp:getchattimestamp()
+          }])
+           console.error('Error:', error);
+         }
+        // }
+      }
     };
     //scroll to bottom in chatview
     useEffect(()=> {
@@ -158,7 +167,7 @@ else{
     method: "POST",
     body: JSON.stringify({
       query:question,
-      where:question.toLocaleLowerCase().startsWith("generally")?"ollama":""
+      where:question.toLocaleLowerCase().startsWith("generally")||isollama?"ollama":""
     }),
     headers: { 'Content-Type': 'application/json', Accept: "text/event-stream" },
     onopen: async (res)=> {
@@ -321,6 +330,9 @@ else{
       }
     },[cmsg])
     const [autoscroll,setas]=useState(false)
+    useEffect(()=>{
+      console.log(setasollama)
+    },[setasollama])
     return (<>
     {/* <MyComponent/> */}
     {/* {time.toLocaleString()} */}
@@ -329,7 +341,7 @@ else{
       <div className="flex flex-row p-2 border-2 place-items-center">{filedimegptisrunning?<CheckIcon className="w-4 h-4"/>:<XIcon className="w-4 h-4"/>} FiledimeGPT</div>
       </div>
     {localorremote?(<h1 className="flex flex-row gap-2"><BotIcon className="h-4 w-4"/>FileGPT : {message?message.path:null}</h1>):(<>
-    <FileUploadComponent fge={filegptendpoint} setcmsg={setcmsg}/>
+    <FileUploadComponent fge={filegptendpoint} setcmsg={setcmsg} setasollama={sao}/>
     </>)}
     
     <div className="overflow-auto grid gap-4 p-4 h-[70%] mb-5" >

@@ -3,8 +3,9 @@ import axios from 'axios';
 interface fuargs{
     fge:string;
     setcmsg:Dispatch<SetStateAction<string>>
+    setasollama:Dispatch<SetStateAction<boolean>>
 }
-const FileUploadComponent = ({fge,setcmsg}:fuargs) => {
+const FileUploadComponent = ({fge,setcmsg,setasollama}:fuargs) => {
  const [files, setFiles] = useState([]);
  const [collectionName, setCollectionName] = useState('');
 
@@ -35,6 +36,7 @@ const FileUploadComponent = ({fge,setcmsg}:fuargs) => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      setasollama(false)
       console.log(response.data['message']);
       setcmsg(response.data['message'])
       // Handle the response as needed

@@ -91,7 +91,6 @@ export let supportedfiles = [
   "xlsx",
   "xls",
   "odt",
-  "py",
   "doc",
   "docx",
   "enex",
@@ -831,7 +830,7 @@ export default function Greet() {
                 <ResizablePanel className={"bg-white dark:bg-gray-800"}> */}
                  
         
-                <GPTchatinterface message={row.original}/>
+                <GPTchatinterface message={row.original} setasollama={true}/>
                 {/* </ResizablePanel>
               </ResizablePanelGroup> */}
                 

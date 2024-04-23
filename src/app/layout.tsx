@@ -10,10 +10,12 @@ import '../styles/globals.css'
 import DarkButton from "../components/but"
 import {Metadata} from 'next'
 
+
 export const metadata:Metadata = {
-  title: 'Filedime',
-  description: 'Rust logic based, NextJS frontend file explorer',
+  title: 'FileGPT-Filedime',
+  description: 'Query your files.',
 }
+
 
 export default function RootLayout({
   children,
