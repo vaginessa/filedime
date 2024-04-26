@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { FileItem } from "../shared/types";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import FileUploadComponent from "./FIleuploadfromremote";
 import { useRouter } from 'next/router';
@@ -11,6 +11,9 @@ import {Textarea} from "./ui/textarea"
 import { invoke } from "@tauri-apps/api/tauri";
 import {fetchEventSource} from '@microsoft/fetch-event-source';
 import { Checkbox } from "./ui/checkbox";
+import { Markdown } from "./markdown";
+import { useDebounce } from "use-debounce";
+
 // import MyComponent from "./route";
 interface gptargs{
     message?:FileItem,
@@ -71,7 +74,7 @@ export default function GPTchatinterface({message,fgptendpoint="localhost",setas
     // const [querystring, setqs] = useState([message.path]);
 
     const embed = async () => {
-      if(message.path){
+      if(message!.path){
         console.log("embed")
         // if(localorremote){
           try {
@@ -97,13 +100,15 @@ export default function GPTchatinterface({message,fgptendpoint="localhost",setas
         // }
       }
     };
-    //scroll to bottom in chatview
-    useEffect(()=> {
-      if(autoscroll){
-
-        divRef.current.scrollIntoView({behavior: "smooth", block:"end"})
+    const scrolltobottom = useCallback(() => {
+      divRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, [onemessage]);
+      
+      useEffect(() => {
+      if (autoscroll) {
+      setTimeout(scrolltobottom, 2); // run the function every 2ms
       }
-    }, [onemessage])
+      }, [onemessage]);
     const fetchData = async () => {
       // Example URL for the Ollama API generate endpoint
 
@@ -355,7 +360,8 @@ else{
               {e.from==="you"?(<UserIcon className="h-4 w-4"/>):(<BotIcon className="h-4 w-4"/>)}
               </div>
           <div className="flex flex-col gap-1">
-            <time className="text-xs text-gray-500 dark:text-gray-400">{e.time} <Button className="ml-4 text-white" variant={"outline"} onClick={()=>{
+            <time className="text-xs text-gray-500 dark:text-gray-400">{e.time} 
+            <Button className="ml-4 text-black dark:text-white" variant={"outline"} onClick={()=>{
               const requestBody = {
                 "text": `${e.message}`.toString(),
                 "comments":"something here"
@@ -373,11 +379,12 @@ else{
               .catch(error => {
                 console.error('Error reading stream:', error)});  
             }}>Listen to this response</Button></time>
-             <p
+             {/* <p
               dangerouslySetInnerHTML={{
                 __html: e.message.replace(/\n/g, '<br/>')
               }}
-            ></p>
+            ></p> */}
+            <Markdown content={e.message}/>
           </div>
           </div>
             </>
@@ -389,11 +396,12 @@ else{
               </div>
           <div className="flex flex-col gap-1">
             <time className="text-xs text-gray-500 dark:text-gray-400">{getchattime()}</time>
-            <p
+            {/* <p
               dangerouslySetInnerHTML={{
                 __html: onemessage.replace(/\n/g, '<br/>').replace("[DONESTREAM]","")
               }}
-            ></p>
+            ></p> */}
+            <Markdown content={onemessage.replace("[DONESTREAM]","")}/>
           </div>
           </div>):null
         }
