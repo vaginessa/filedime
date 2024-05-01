@@ -162,7 +162,7 @@ fn get_lsblk_output() -> Result<String, ()> {
     ]);
     let g = get_command_output(command);
 
-    let output = String::from_utf8(g.clone().unwrap()).unwrap();
+    let output = String::from_utf8(g.clone()?).unwrap();
     // println!("{}",output);
     Ok(output)
     // g
